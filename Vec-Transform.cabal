@@ -6,7 +6,7 @@ license: BSD3
 license-file: ""
 copyright: Tobias Bexelius
 maintainer: Tobias Bexelius
-build-depends: Vec == 0.9.7, base >= 4 && < 5
+build-depends: Vec == 0.9.8, base >= 4 && < 5
 stability:
 homepage:
 package-url:
@@ -15,13 +15,14 @@ synopsis: Extends the Vec package with some 4x4 transform matrices
 description: This package adds some 4x4 transform matrices to the Vec package, that is useful in graphics applications, such as those written with the GPipe package.
              Specifically, it adds translation, scaling, rotation, perspective projection and orthogonal projection matrices.
 category: Math, Graphics
-author: Tobias Bexelius
+author: Tobias Bexelius, Vo Minh Thu
 tested-with:
 data-files:
 data-dir: ""
 extra-source-files:
 extra-tmp-files:
-exposed-modules: Data.Vec.LinAlg.Transform3D
+exposed-modules: Data.Vec.LinAlg.Transform3D,
+                 Data.Vec.LinAlg.OpenGL
 exposed: True
 buildable: True
 build-tools:
