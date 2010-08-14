@@ -17,6 +17,7 @@
 module Data.Vec.LinAlg.OpenGL where
 
 import Data.Vec
+import Data.Vec.LinAlg.Transform3D (rotationVec)
 
 showMat33 :: Show a => Mat33 a -> String
 showMat33 ((a:.b:.c:.()):.
@@ -39,6 +40,34 @@ showMat44 ((a:.b:.c:.d:.()):.
   , concat ["    ", show i, ", ", show j, ", ", show k, ", ", show l, ","]
   , concat ["    ", show m, ", ", show n, ", ", show o, ", ", show p, "]"]
   ]
+
+xAxis :: Mat44 a -> Vec3 a
+xAxis
+  ((a:._:._:._:.()):.
+   (e:._:._:._:.()):.
+   (i:._:._:._:.()):.
+   (_:._:._:._:.()):.()) = a:.e:.i:.()
+
+yAxis :: Mat44 a -> Vec3 a
+yAxis
+  ((_:.b:._:._:.()):.
+   (_:.f:._:._:.()):.
+   (_:.j:._:._:.()):.
+   (_:._:._:._:.()):.()) = b:.f:.j:.()
+
+zAxis :: Mat44 a -> Vec3 a
+zAxis
+  ((_:._:.c:._:.()):.
+   (_:._:.g:._:.()):.
+   (_:._:.k:._:.()):.
+   (_:._:._:._:.()):.()) = c:.g:.k:.()
+
+origin :: Mat44 a -> Vec3 a
+origin
+  ((_:._:._:.d:.()):.
+   (_:._:._:.h:.()):.
+   (_:._:._:.l:.()):.
+   (_:._:._:._:.()):.()) = d:.h:.l:.()
 
 verticalScreenExtent :: Floating a => a -> a -> a -> (a,a,a,a)
 verticalScreenExtent fovy aspect hither = (xmin,xmax,ymin,ymax)
@@ -138,4 +167,20 @@ translateAlongLocalZ x
   (e:.f:.g:.(g * x + h):.()):.
   (i:.j:.k:.(k * x + l):.()):.
   (m:.n:.o:.p:.()):.()
+
+rotateAroundLocalX :: Floating a => a -> Mat44 a -> Mat44 a
+rotateAroundLocalX x t@
+  ((a:.b:.c:.d:.()):.
+   (e:.f:.g:.h:.()):.
+   (i:.j:.k:.l:.()):.
+   (m:.n:.o:.p:.()):.()) =
+  ((a':.b':.c':.d:.()):.
+   (e':.f':.g':.h:.()):.
+   (i':.j':.k':.l:.()):.
+   (m:.n:.o:.p:.()):.())
+  where
+  rot = rotationVec (xAxis t) x
+  (a':.e':.i':._:.()) = multvm (a:.e:.i:.0:.()) rot
+  (b':.f':.j':._:.()) = multvm (b:.f:.j:.0:.()) rot
+  (c':.g':.k':._:.()) = multvm (c:.g:.k:.0:.()) rot
 
