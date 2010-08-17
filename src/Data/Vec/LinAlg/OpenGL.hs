@@ -168,6 +168,7 @@ translateAlongLocalZ x
   (i:.j:.k:.(k * x + l):.()):.
   (m:.n:.o:.p:.()):.()
 
+-- the multtvm can be factored inside a multaxis function.
 rotateAroundLocalX :: Floating a => a -> Mat44 a -> Mat44 a
 rotateAroundLocalX x t@
   ((a:.b:.c:.d:.()):.
@@ -183,4 +184,56 @@ rotateAroundLocalX x t@
   (a':.e':.i':._:.()) = multvm (a:.e:.i:.0:.()) rot
   (b':.f':.j':._:.()) = multvm (b:.f:.j:.0:.()) rot
   (c':.g':.k':._:.()) = multvm (c:.g:.k:.0:.()) rot
+
+rotateAroundLocalY :: Floating a => a -> Mat44 a -> Mat44 a
+rotateAroundLocalY x t@
+  ((a:.b:.c:.d:.()):.
+   (e:.f:.g:.h:.()):.
+   (i:.j:.k:.l:.()):.
+   (m:.n:.o:.p:.()):.()) =
+  ((a':.b':.c':.d:.()):.
+   (e':.f':.g':.h:.()):.
+   (i':.j':.k':.l:.()):.
+   (m:.n:.o:.p:.()):.())
+  where
+  rot = rotationVec (yAxis t) x
+  (a':.e':.i':._:.()) = multvm (a:.e:.i:.0:.()) rot
+  (b':.f':.j':._:.()) = multvm (b:.f:.j:.0:.()) rot
+  (c':.g':.k':._:.()) = multvm (c:.g:.k:.0:.()) rot
+
+rotateAroundGlobalY :: Floating a => a -> Mat44 a -> Mat44 a
+rotateAroundGlobalY x
+  ((a:.b:.c:.d:.()):.
+   (e:.f:.g:.h:.()):.
+   (i:.j:.k:.l:.()):.
+   (m:.n:.o:.p:.()):.()) =
+  ((a':.b':.c':.d:.()):.
+   (e':.f':.g':.h:.()):.
+   (i':.j':.k':.l:.()):.
+   (m:.n:.o:.p:.()):.())
+  where
+  rot = rotationVec (0:.1:.0:.()) x
+  (a':.e':.i':._:.()) = multvm (a:.e:.i:.0:.()) rot
+  (b':.f':.j':._:.()) = multvm (b:.f:.j:.0:.()) rot
+  (c':.g':.k':._:.()) = multvm (c:.g:.k:.0:.()) rot
+
+
+-- | Given a location (sx,sy) in window coordinates ((0,0) is the lower-left
+-- corner) and the window dimensions (in pixels), rayFromPixel returns the
+-- origin and direction (in world coordinates) from the ray passing through
+-- the eye and the given location (on the near plane).
+rayFromPixel :: Floating a => Mat44 a -> (a,a,a,a) -> Int -> Int -> a
+  -> Int -> Int -> (Vec3 a, Vec3 a)
+rayFromPixel mat (l,r,b,t) ww wh hither sx sy = (o + dir,normalize dir)
+  where
+  o = origin mat
+  x = xAxis mat
+  y = yAxis mat
+  z = zAxis mat
+  -- horizontal delta on the near plane
+  h = l + (r - l) / fromIntegral ww * (fromIntegral sx + 0.5)
+  -- vertical delta on the near plane
+  v = b + (t - b) / fromIntegral wh * (fromIntegral sy + 0.5)
+  -- the vector from origin to the point on the near plane
+  dir = x * vec h + y * vec v - z * vec hither
 
